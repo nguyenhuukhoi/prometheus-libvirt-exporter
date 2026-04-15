@@ -165,6 +165,8 @@ var (
 
 type collectFunc func(ch chan<- prometheus.Metric, l *libvirt.Libvirt, domain domainMeta, promLabels []string) (err error)
 
+const domainMemoryStatsMax = 16
+
 type domainMeta struct {
 	domainName   string
 	instanceName string
@@ -449,7 +451,7 @@ func CollectDomainNetworkInfo(ch chan<- prometheus.Metric, l *libvirt.Libvirt, d
 func CollectDomainDomainStatInfo(ch chan<- prometheus.Metric, l *libvirt.Libvirt, domain domainMeta, promLabels []string) (err error) {
 	//collect stat info
 	var rStats []libvirt.DomainMemoryStat
-	if rStats, err = l.DomainMemoryStats(domain.libvirtDomain, uint32(libvirt.DomainMemoryStatNr), 0); err != nil {
+	if rStats, err = l.DomainMemoryStats(domain.libvirtDomain, domainMemoryStatsMax, 0); err != nil {
 		logger.Warn("failed to get domainstat", zap.Error(err))
 		return err
 	}
