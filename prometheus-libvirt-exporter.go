@@ -333,7 +333,7 @@ func CollectDomain(ch chan<- prometheus.Metric, l *libvirt.Libvirt, domain domai
 		return nil
 	}
 
-	for _, collectFunc := range []collectFunc{CollectDomainBlockDeviceInfo, CollectDomainNetworkInfo, CollectDomainDomainStatInfo} {
+	for _, collectFunc := range []collectFunc{CollectDomainBlockDeviceInfo, CollectDomainNetworkInfo, CollectDomainDomainStatInfo, CollectDomainVcpuStats} {
 		if err = collectFunc(ch, l, domain, promLabels); err != nil {
 			logger.Warn("failed to collect some domain info", zap.Error(err))
 		}
@@ -533,6 +533,11 @@ func (e *LibvirtExporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- libvirtDomainStatMemoryAvailableInBytesDesc
 	ch <- libvirtDomainStatMemoryUsableBytesDesc
 	ch <- libvirtDomainStatMemoryRssBytesDesc
+
+	//domain vcpu
+	ch <- libvirtDomainVcpuTimeDesc
+	ch <- libvirtDomainVcpuWaitDesc
+	ch <- libvirtDomainVcpuDelayDesc
 }
 
 func main() {
