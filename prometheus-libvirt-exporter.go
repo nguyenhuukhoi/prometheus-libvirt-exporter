@@ -76,6 +76,11 @@ var (
 		"Resident Set Size of the process running the domain, in bytes.",
 		[]string{"domain", "instanceName", "instanceId", "flavorName", "userName", "userId", "projectName", "projectId", "host"},
 		nil)
+	libvirtDomainStatMemoryDiskCachesBytesDesc = prometheus.NewDesc(
+		prometheus.BuildFQName("libvirt", "domain_stat", "memory_disk_caches_bytes"),
+		"Memory of the domain that can be reclaimed without additional I/O, typically disk caches, in bytes.",
+		[]string{"domain", "instanceName", "instanceId", "flavorName", "userName", "userId", "projectName", "projectId", "host"},
+		nil)
 	libvirtDomainInfoNrVirtCpuDesc = prometheus.NewDesc(
 		prometheus.BuildFQName("libvirt", "domain_info", "virtual_cpus"),
 		"Number of virtual CPUs for the domain.",
@@ -493,6 +498,12 @@ func CollectDomainDomainStatInfo(ch chan<- prometheus.Metric, l *libvirt.Libvirt
 				prometheus.GaugeValue,
 				float64(stat.Val*1024),
 				promLabels...)
+		case int32(libvirt.DomainMemoryStatDiskCaches):
+			ch <- prometheus.MustNewConstMetric(
+				libvirtDomainStatMemoryDiskCachesBytesDesc,
+				prometheus.GaugeValue,
+				float64(stat.Val*1024),
+				promLabels...)
 		}
 	}
 	return
@@ -533,6 +544,7 @@ func (e *LibvirtExporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- libvirtDomainStatMemoryAvailableInBytesDesc
 	ch <- libvirtDomainStatMemoryUsableBytesDesc
 	ch <- libvirtDomainStatMemoryRssBytesDesc
+	ch <- libvirtDomainStatMemoryDiskCachesBytesDesc
 
 	//domain vcpu
 	ch <- libvirtDomainVcpuTimeDesc
